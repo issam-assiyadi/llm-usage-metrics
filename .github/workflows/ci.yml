@@ -215,6 +215,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - run: pnpm run smoke:dist-opencode
+      - run: pnpm run smoke:dist-tui
       - run: pnpm run smoke:sqlite-warning
       - run: pnpm exec vitest run --coverage.enabled=false
       - run: pnpm run core:test:fast
@@ -245,6 +246,8 @@ jobs:
       - run: pnpm run smoke:dist-bun
       # The OpenCode source reads SQLite through node:sqlite, which Bun provides.
       - run: bun scripts/smoke-dist-opencode.mjs
+      # Ink and React load and draw the TUI's first frame under Bun.
+      - run: bun scripts/smoke-dist-tui.mjs
 
   # Core package (@ayagmar/agent-sessions): its own build, lint, types, tests and gate.
   core-verify:

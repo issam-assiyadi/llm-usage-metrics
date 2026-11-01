@@ -11,7 +11,7 @@
 
 import type { ShareReport } from '../../core/index.js';
 import type { ShareViewContext } from '../state/context.js';
-import { embeds } from './model.js';
+import { embeds, SHARE_PANEL_HEADINGS, type SharePanelId } from './model.js';
 import {
   renderComparePanel,
   renderEfficiencyPanel,
@@ -29,41 +29,18 @@ export type SharePanel = {
   render: (body: HTMLElement, context: ShareViewContext) => void;
 };
 
-export const SHARE_PANELS: readonly SharePanel[] = [
-  {
-    id: 'wrapped-recap',
-    title: 'Year in review',
-    appliesTo: embeds('wrapped'),
-    render: renderWrappedPanel,
-  },
-  {
-    id: 'summary',
-    title: 'This month and the past year',
-    appliesTo: embeds('summary'),
-    render: renderSummaryPanel,
-  },
-  {
-    id: 'trends',
-    title: 'The trend',
-    appliesTo: embeds('trends'),
-    render: renderTrendsPanel,
-  },
-  {
-    id: 'compare',
-    title: 'Current against baseline',
-    appliesTo: embeds('compare'),
-    render: renderComparePanel,
-  },
-  {
-    id: 'efficiency',
-    title: 'Cost against commits',
-    appliesTo: embeds('efficiency'),
-    render: renderEfficiencyPanel,
-  },
-  {
-    id: 'optimize',
-    title: 'Candidate models',
-    appliesTo: embeds('optimize'),
-    render: renderOptimizePanel,
-  },
-];
+const RENDERERS: Record<SharePanelId, SharePanel['render']> = {
+  'wrapped-recap': renderWrappedPanel,
+  summary: renderSummaryPanel,
+  trends: renderTrendsPanel,
+  compare: renderComparePanel,
+  efficiency: renderEfficiencyPanel,
+  optimize: renderOptimizePanel,
+};
+
+export const SHARE_PANELS: readonly SharePanel[] = SHARE_PANEL_HEADINGS.map((heading) => ({
+  id: heading.id,
+  title: heading.title,
+  appliesTo: embeds(heading.report),
+  render: RENDERERS[heading.id],
+}));

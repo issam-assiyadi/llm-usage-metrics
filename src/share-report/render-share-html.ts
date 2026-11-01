@@ -12,6 +12,7 @@ import {
   escapeJsonForScript,
   getReportTitle,
   renderShareDocument,
+  serializeSavedView,
 } from './client/ui/export/share-document.js';
 import type { ShareReportData } from './types.js';
 
@@ -21,6 +22,8 @@ export type ShareHtmlOptions = {
   fileBaseName: string;
   /** The document title; the command's report title by default. */
   title?: string;
+  /** The view the file opens on, as a URL hash writes it ("Save this view", the TUI's export). */
+  savedViewHash?: string;
 };
 
 export function renderShareHtml(options: ShareHtmlOptions): string {
@@ -36,5 +39,7 @@ export function renderShareHtml(options: ShareHtmlOptions): string {
     style: SHARE_CLIENT_STYLE,
     script: SHARE_CLIENT_SCRIPT,
     payloadJson: escapeJsonForScript(JSON.stringify(payload)),
+    viewStateJson:
+      options.savedViewHash === undefined ? undefined : serializeSavedView(options.savedViewHash),
   });
 }

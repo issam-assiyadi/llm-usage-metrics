@@ -12,7 +12,11 @@ Options:
 
 Commands:
   summary [options]                   Show cost and tokens for today, the last 7 days, and month to
-                                      date, plus activity streaks (default command)
+                                      date, plus activity streaks (default outside an interactive
+                                      terminal)
+  tui [options]                       Explore usage in an interactive terminal report: charts,
+                                      filters, projects and sessions (default in an interactive
+                                      terminal)
   hourly [options]                    Show hourly usage report (today unless --last, --since,
                                       --until, or --all)
   daily [options]                     Show daily usage report (last 7 days unless --last, --since,
@@ -62,6 +66,7 @@ Commands:
   help [command]                      display help for command
 
 Examples:
+  $ llm-usage summary
   $ llm-usage
   $ llm-usage hourly
   $ llm-usage daily

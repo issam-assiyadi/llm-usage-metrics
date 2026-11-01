@@ -71,6 +71,7 @@ export const ALL_SOURCE_IDS: readonly string[] = [
 /** Every top-level command, in registration order; written out for the same reason. */
 export const COMMAND_NAMES: readonly string[] = [
   'summary',
+  'tui',
   'hourly',
   'daily',
   'weekly',

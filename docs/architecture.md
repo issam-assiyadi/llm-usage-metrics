@@ -204,6 +204,17 @@ Each command has a `run*` entry point, and most have a `build*` that returns the
 5. `findSpendSpikes(...)` (`src/aggregate/spend-spikes.ts`) over the last 7 days, and `findSpikeDrivers(...)` for the costliest spike's top project and model
 6. shared report runtime emits diagnostics and stdout body
 
+### TUI
+
+`llm-usage tui`, and a bare `llm-usage` when stdin and stdout are terminals (`routeBareRunToTui` in `src/cli/run-tui-command.ts`, applied in `index.ts` before commander parses)
+
+1. `runTuiCommand` refuses to run without a terminal, reads the last view (`src/tui/session-files.ts`) and points the logger and raw stderr at a `DiagnosticsStore` (`src/tui/capture-stderr.ts`) for as long as Ink owns the screen
+2. it imports `tui.js`, a separate bundle next to `index.js` (`src/cli/tui.ts`), by a computed URL, so Ink and React load only for this command; the TUI bundle holds no data pipeline, and receives the loader, the HTML export and the saved view from the CLI bundle
+3. `loadTuiReport` (`src/tui/load-report.ts`) builds the summary data, then the share payload from `buildSummaryShareRequest` (the request `summary --share` uses) through `buildShareReportData`, and decodes it with the share client's `decodeShareReport`
+4. the Ink app (`src/tui/app.tsx`) keeps the share client's `ShareUiState` plus the TUI's tab, pane, cursor and dialog state; keys go through `state/keymap.ts` to the pure reducer in `state/tui-state.ts`, which changes the view with the share client's own functions (`withPeriod`, `withFilter`, `nextSort`, `resetView`, ...)
+5. `screen.ts` composes every screen as lines of styled segments from the share client's models (`buildHeader`, `buildSummary`, `getEmptyState`, `buildTable`, the panel `build*View`s, and the chart builders for each chart's words and table); `charts/` rasterizes the series (`stackByDimension`, `getCacheHitSeries`, `buildHourWeekdayMatrix`, `buildBlockMatrix`, `rankDimension`) into terminal cells, and `theme.ts` resolves tones for truecolor, 16 colours or none
+6. a reload or the next launch carries filters and the drilled project by label (`state/portable-view.ts`), since dictionary indexes move between reports; on quit the view is saved and collected warnings are replayed on stderr
+
 ### Statusline
 
 `runStatusline` builds the summary data with offline pricing and machine sync off, so it never fetches prices or opens an ssh connection and skips the update check, and prints one line from it with the logger silenced unless `--verbose`. Under Claude Code it also reads the session JSON from stdin and puts the session cost and context use first. It parses on the same worker pool as every other command: with `parseWorkers` at `auto`, at most six threads while it writes the event store.
@@ -367,6 +378,8 @@ With a terminal width, a caller's `fit` (abbreviated body rows and an ordered li
   Terminal/JSON/Markdown rendering
 - `src/share-report`
   The `--share` HTML report: payload building, redaction, the HTML document, and the bundled browser client in `client/`
+- `src/tui`
+  The interactive terminal report: data loading, the Ink app, keyboard state, terminal charts and screens drawn from the share client's models
 - `src/otel-export`
   OTLP/JSON for `events --format otlp-traces` and `otlp-metrics`: the span tree per session, daily metric points per agent, derived ids, resource and attribute encoding
 - `src/update`

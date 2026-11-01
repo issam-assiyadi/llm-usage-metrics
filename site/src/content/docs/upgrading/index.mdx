@@ -11,6 +11,10 @@ Every report's `--json` output carries `schemaVersion: 1` since 0.8.0. New field
 
 These changes are on the main branch and not yet in a release.
 
+### A bare `llm-usage` opens the terminal report
+
+In an interactive terminal, `llm-usage` with no command now opens the interactive terminal report (`llm-usage tui`) instead of printing the summary. Piped, in CI, on a dumb terminal, or with `LLM_USAGE_NO_TUI=1` it still prints the summary, and `llm-usage summary` always does, so scripts keep their output. To keep the old behaviour interactively, run `llm-usage summary` or set `LLM_USAGE_NO_TUI=1`.
+
 ### Share reports are HTML
 
 `--share` writes one self-contained interactive HTML file instead of a 1200×630 SVG card plus an HTML page that exported a PNG. The file names keep their stem and change extension: `usage-monthly-share.svg` becomes `usage-monthly-share.html`, `llm-usage-wrapped-2026.svg` becomes `llm-usage-wrapped-2026.html`, and so on. A script that picks up `*-share.svg` needs to look for the `.html` file. `--no-open` still writes the file without opening it, and the new `--redact` labels projects `project-N` and machines `machine-N`. See [Interactive report](/llm-usage-metrics/share/).

@@ -6,6 +6,7 @@ export type SharedOptionProfile =
   | 'rollup'
   | 'pricing'
   | 'summary'
+  | 'tui'
   | 'specialized'
   | 'compare'
   | 'trends'

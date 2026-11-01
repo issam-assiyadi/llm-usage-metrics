@@ -22,6 +22,7 @@ import type {
   SessionCommandOptions,
   StatuslineCommandOptions,
   SummaryCommandOptions,
+  TuiCommandOptions,
   TrendsCommandOptions,
   ValueCommandOptions,
   WrappedCommandOptions,
@@ -44,6 +45,7 @@ import { runProjectsReport } from '../run-projects-report.js';
 import { runSessionReport } from '../run-session-report.js';
 import { runToolsReport } from '../run-tools-report.js';
 import { runSummaryReport } from '../run-summary-report.js';
+import { runTuiCommand } from '../run-tui-command.js';
 import { runStatusline } from '../run-statusline.js';
 import { runTrendsReport } from '../run-trends-report.js';
 import { runUsageReport } from '../run-usage-report.js';
@@ -437,11 +439,11 @@ const summaryReportDefinition: ReportRuntimeDefinition = {
     docsLabel: 'summary',
     kind: 'specialized',
     description:
-      'Show cost and tokens for today, the last 7 days, and month to date, plus activity streaks (default command)',
+      'Show cost and tokens for today, the last 7 days, and month to date, plus activity streaks (default outside an interactive terminal)',
     sharedOptionProfile: 'summary',
     helpExamples: [
       {
-        command: 'llm-usage',
+        command: 'llm-usage summary',
         includeInRootHelp: true,
         includeInCliReference: true,
       },
@@ -459,6 +461,39 @@ const summaryReportDefinition: ReportRuntimeDefinition = {
     addRepoFilterOption(command).action((options: SummaryCommandOptions) =>
       runSummaryReport(options),
     );
+
+    return command;
+  },
+};
+
+export const TUI_COMMAND_NAME = 'tui';
+
+const tuiReportDefinition: ReportRuntimeDefinition = {
+  meta: {
+    commandName: TUI_COMMAND_NAME,
+    docsLabel: 'tui',
+    kind: 'specialized',
+    description:
+      'Explore usage in an interactive terminal report: charts, filters, projects and sessions (default in an interactive terminal)',
+    sharedOptionProfile: 'tui',
+    helpExamples: [
+      {
+        command: 'llm-usage',
+        includeInRootHelp: true,
+        includeInCliReference: true,
+      },
+      {
+        command: 'llm-usage tui --source codex,claude',
+        includeInCliReference: true,
+      },
+    ],
+  },
+  register(command) {
+    command.option(
+      '--all',
+      'No effect: the TUI reads the past year and picks its period on screen (press p)',
+    );
+    addRepoFilterOption(command).action((options: TuiCommandOptions) => runTuiCommand(options));
 
     return command;
   },
@@ -1179,6 +1214,7 @@ const pricingReportDefinition: ReportRuntimeDefinition = {
 
 const reportDefinitions = [
   summaryReportDefinition,
+  tuiReportDefinition,
   hourlyReportDefinition,
   createUsageReportDefinition('daily'),
   createUsageReportDefinition('weekly'),

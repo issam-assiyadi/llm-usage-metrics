@@ -20,7 +20,7 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
     // Windows CI runners are several times slower at SQLite and child-process work; the
     // defaults (5 s per test, 10 s per hook) time out tests that pass everywhere else.
     ...(process.platform === 'win32' ? { testTimeout: 30_000, hookTimeout: 30_000 } : {}),
@@ -39,7 +39,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reportsDirectory: 'coverage',
-      include: ['src/**/*.ts'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/cli/bin.ts',
         'src/cli/index.ts',

@@ -52,7 +52,24 @@ bunx --bun llm-usage-metrics@latest
 echo 'source <(llm-usage completion bash)' >> ~/.bashrc
 ```
 
-With no command, `llm-usage` prints cost and tokens for today, the last 7 days, and month to date, a month-end projection (checked against `monthlyBudgetUsd` when you set one), what prompt caching saved you this month, a note when a day of the last 7 cost at least $1 and at least 3 times your median active day, then your current and longest streak, best day, and a year-long activity heatmap. `llm-usage daily` breaks the last 7 days down by day and source, and `llm-usage weekly` covers the last 8 weeks; add `--since YYYY-MM-DD` or `--all` for older usage.
+With no command in an interactive terminal, `llm-usage` opens the interactive terminal report (see below). Piped, in CI, on a dumb terminal, or with `LLM_USAGE_NO_TUI=1`, it prints the summary instead, which `llm-usage summary` always does.
+
+`llm-usage summary` prints cost and tokens for today, the last 7 days, and month to date, a month-end projection (checked against `monthlyBudgetUsd` when you set one), what prompt caching saved you this month, a note when a day of the last 7 cost at least $1 and at least 3 times your median active day, then your current and longest streak, best day, and a year-long activity heatmap. `llm-usage daily` breaks the last 7 days down by day and source, and `llm-usage weekly` covers the last 8 weeks; add `--since YYYY-MM-DD` or `--all` for older usage.
+
+### Interactive terminal report
+
+`llm-usage` (or `llm-usage tui`, which takes the summary's source, model, provider, machine, repository and pricing flags) draws the same report as `--share` in the terminal: the past year of usage, read once, then explored with the keyboard.
+
+| Tab         | What it shows                                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------------------------- |
+| 1 Overview  | Tokens, cost, events, active time, cache hit rate, cost per active hour; cost and tokens over time, stacked |
+| 2 Breakdown | Projects ranked by cost, and each model's share of tokens beside its share of cost                          |
+| 3 Rates     | Cache hit rate and cost per active hour per period, against the whole view                                  |
+| 4 Activity  | Tokens by hour and weekday, and 5-hour blocks by the day and hour they start                                |
+| 5 Projects  | The project table, sortable and paged; Enter opens a project's sessions                                     |
+| 6 Report    | The summary's month, streaks, calendar and recent periods                                                   |
+
+Keys: `←/→ ↑/↓` read a period, cell or row exactly; `Enter` focuses a chart full screen with its notes and table; `Tab` moves between panes; `f` filters sources, models, projects and machines; `p` picks the period; `g`, `c` and `s` cycle granularity, cost mode and what the charts stack by; `h` hides names; `r` and `x` reset the view and the filters; `R` reads your sessions again; `e` exports the view as the HTML report and opens it; `d` shows warnings; `?` lists every key; `q` quits. The view is kept for the next run. Warnings printed while the report owns the screen are shown under `d` and repeated on stderr after you quit. Charts use the share report's palette on truecolor terminals and glyph patterns with `NO_COLOR`.
 
 If the report is empty, check source discovery. `doctor` marks each source found, not installed, or unparseable and lists the paths it searched (`--verbose` adds the paths of sources that are not installed):
 

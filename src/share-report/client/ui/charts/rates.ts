@@ -2,6 +2,7 @@
 // denominator leaves a gap in the line, never a zero; the whole view's ratio is a labelled
 // dashed line across.
 
+import type { ShareCostMode } from '../../../types.js';
 import {
   formatUsdOrNone,
   getCacheHitRate,
@@ -194,23 +195,77 @@ function valuesByAxis(
   });
 }
 
+/** A rate per period of the view's axis (null where it has no denominator) and over the view. */
+export type RateSeries = {
+  axis: string[];
+  values: (number | null)[];
+  overall: number | null;
+};
+
+/**
+ * The cache hit rate per period and over the view. `hourlyFrom` is set when the hour axis
+ * leaves out daily-only cells; the overall rate still covers them.
+ */
+export function getCacheHitSeries(
+  context: ShareViewContext,
+  span: ShareDateSpan,
+): RateSeries & { hourlyFrom: string | null } {
+  const { report, view, cells } = context;
+  const axis = getPeriodAxis(report, span, view.granularity);
+  const rollup = rollupByPeriod(report, cells, view.granularity);
+
+  return {
+    axis,
+    values: valuesByAxis(axis, rollup.rows, getCacheHitRate),
+    overall: getCacheHitRate(sumCells(report, cells)),
+    hourlyFrom: rollup.hourlyFrom,
+  };
+}
+
+/**
+ * Cost per active hour per period and over the view, from the cells with hourly detail only;
+ * `span` is the view's span clipped to where that detail starts.
+ */
+export function getCostPerHourSeries(
+  context: ShareViewContext,
+  span: ShareDateSpan,
+  mode: ShareCostMode,
+): RateSeries & { span: ShareDateSpan } {
+  const { report, view, cells } = context;
+  const { hourlyFrom } = report.data.meta;
+  const clipped: ShareDateSpan =
+    hourlyFrom !== null && hourlyFrom > span.first ? { first: hourlyFrom, last: span.last } : span;
+  const hourlyCells = selectHourlyCells(report, cells);
+  const perHour = (totals: ShareTotals) => {
+    const cost = getCost(report, totals.costs, mode);
+    return cost.kind === 'value' ? getCostPerActiveHour(cost.costUsd, totals.activeMs) : null;
+  };
+  const axis = getPeriodAxis(report, clipped, view.granularity);
+
+  return {
+    axis,
+    values: valuesByAxis(axis, rollupByPeriod(report, hourlyCells, view.granularity).rows, perHour),
+    overall: perHour(sumCells(report, hourlyCells)),
+    span: clipped,
+  };
+}
+
 /** Cache reads as a share of all prompt tokens, per period. */
 export function buildCacheHitChart(context: ShareViewContext, width: number): ChartView {
-  const { report, view, cells, span } = context;
+  const { view, span } = context;
   const description = `Cache hit rate per ${view.granularity}`;
 
   if (span === undefined) {
     return { description, message: 'No usage in this view.', notes: [] };
   }
 
-  const axis = getPeriodAxis(report, span, view.granularity);
-  const rollup = rollupByPeriod(report, cells, view.granularity);
-  const overall = getCacheHitRate(sumCells(report, cells));
+  const series = getCacheHitSeries(context, span);
+  const { axis, overall } = series;
   const notes = ['Cache reads as a share of input, cache read and cache write tokens.'];
 
-  if (rollup.hourlyFrom !== null) {
+  if (series.hourlyFrom !== null) {
     notes.push(
-      `Hourly detail from ${formatDay(rollup.hourlyFrom)}; the whole-view line covers every day.`,
+      `Hourly detail from ${formatDay(series.hourlyFrom)}; the whole-view line covers every day.`,
     );
   }
 
@@ -218,7 +273,7 @@ export function buildCacheHitChart(context: ShareViewContext, width: number): Ch
     description,
     caption: `Cache hit rate per ${view.granularity} · ${formatDateRange(span.first, span.last)} · ${formatPercent(overall)} overall`,
     axis,
-    values: valuesByAxis(axis, rollup.rows, getCacheHitRate),
+    values: series.values,
     overall,
     max: 1,
     format: formatPercent,
@@ -235,7 +290,7 @@ export function buildCacheHitChart(context: ShareViewContext, width: number): Ch
  * measured per hour, so earlier days are left out and the chart says so.
  */
 export function buildCostPerHourChart(context: ShareViewContext, width: number): ChartView {
-  const { report, view, cells, span } = context;
+  const { report, view, span } = context;
   const mode = view.costMode;
   const description = `Cost per active hour, per ${view.granularity}`;
 
@@ -276,21 +331,13 @@ export function buildCostPerHourChart(context: ShareViewContext, width: number):
     };
   }
 
-  const clipped: ShareDateSpan =
-    hourlyFrom !== null && hourlyFrom > span.first ? { first: hourlyFrom, last: span.last } : span;
-  const hourlyCells = selectHourlyCells(report, cells);
-  const perHour = (totals: ShareTotals) => {
-    const cost = getCost(report, totals.costs, mode);
-    return cost.kind === 'value' ? getCostPerActiveHour(cost.costUsd, totals.activeMs) : null;
-  };
-  const axis = getPeriodAxis(report, clipped, view.granularity);
-  const overall = perHour(sumCells(report, hourlyCells));
+  const { axis, values, overall, span: clipped } = getCostPerHourSeries(context, span, mode);
 
   return buildLineChart({
     description,
     caption: `Cost (${COST_MODE_LABELS[mode].toLowerCase()}) per active hour · ${formatDateRange(clipped.first, clipped.last)} · ${formatUsdOrNone(overall)} overall`,
     axis,
-    values: valuesByAxis(axis, rollupByPeriod(report, hourlyCells, view.granularity).rows, perHour),
+    values,
     overall,
     format: formatUsdOrNone,
     tickFormat: usdTickFormat,
