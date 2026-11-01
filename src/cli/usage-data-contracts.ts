@@ -233,6 +233,9 @@ export type PricingCommandOptions = SharedOptionsForProfile<'pricing'>;
 
 export type SummaryCommandOptions = SharedOptionsForProfile<'summary'> & RepoFilterOption;
 
+/** The `tui` command: the summary's read flags, without an output format. */
+export type TuiCommandOptions = SharedOptionsForProfile<'tui'> & RepoFilterOption;
+
 export type StatuslineCommandOptions = SharedOptionsForProfile<'statusline'>;
 
 export type EfficiencyCommandOptions = SharedOptionsForProfile<'specialized'> &

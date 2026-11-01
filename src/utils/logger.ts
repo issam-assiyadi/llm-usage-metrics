@@ -22,6 +22,22 @@ const icons: Record<LogStyle, string> = {
 let activeLevel: LogLevel = 'info';
 let scrubMessage: ((message: string) => string) | undefined;
 
+/** Receives each message the level lets through, instead of stderr. */
+export type LogSink = (style: LogStyle, message: string) => void;
+export type { LogStyle };
+
+let activeSink: LogSink | undefined;
+
+/**
+ * Sends every message to `sink` instead of stderr until it is cleared with `undefined`; the TUI
+ * collects them while it owns the screen. Returns the sink it replaced.
+ */
+export function setLogSink(sink: LogSink | undefined): LogSink | undefined {
+  const previous = activeSink;
+  activeSink = sink;
+  return previous;
+}
+
 export function setLogLevel(level: LogLevel): void {
   activeLevel = level;
 }
@@ -67,6 +83,15 @@ function wrapToStderr(text: string): string {
   );
 }
 
+function write(style: LogStyle, message: string): void {
+  if (activeSink) {
+    activeSink(style, scrubMessage ? scrubMessage(message) : message);
+    return;
+  }
+
+  console.error(formatMessage(style, message));
+}
+
 function formatMessage(style: LogStyle, message: string): string {
   const icon = icons[style];
   return `${icon} ${wrapToStderr(scrubMessage ? scrubMessage(message) : message)}`;
@@ -78,27 +103,27 @@ export const logger = {
       return;
     }
 
-    console.error(formatMessage('info', message));
+    write('info', message);
   },
   warn: (message: string): void => {
     if (!isEnabled(levelRanks.warn)) {
       return;
     }
 
-    console.error(formatMessage('warn', message));
+    write('warn', message);
   },
   dim: (message: string): void => {
     if (!isEnabled(levelRanks.info)) {
       return;
     }
 
-    console.error(formatMessage('dim', message));
+    write('dim', message);
   },
   debug: (message: string): void => {
     if (!isEnabled(levelRanks.debug)) {
       return;
     }
 
-    console.error(formatMessage('debug', message));
+    write('debug', message);
   },
 };

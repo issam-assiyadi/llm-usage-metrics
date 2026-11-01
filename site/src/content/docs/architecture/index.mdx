@@ -67,7 +67,7 @@ Every report that reads usage builds its events through `buildUsageEventDataset`
 
 ## Report definitions and runtime
 
-`src/cli/report-definitions/report-definitions.ts` defines every report command, in this order: `summary` (the default command), `hourly`, `daily`, `weekly`, `monthly`, `projects`, `compare`, `efficiency`, `optimize`, `trends`, `session`, `blocks`, `value`, `wrapped`, `events`, `pricing`, `statusline`, `doctor`, and `prune`. A definition names the command, its shared option profile (`shared-report-options.ts`), and its examples. The same metadata registers the Commander command, builds the root help examples, and generates the [CLI reference](/llm-usage-metrics/cli-reference/), so option descriptions are written once.
+`src/cli/report-definitions/report-definitions.ts` defines every report command, in this order: `summary` (the default outside an interactive terminal), `tui` (the default in one), `hourly`, `daily`, `weekly`, `monthly`, `projects`, `compare`, `efficiency`, `optimize`, `trends`, `session`, `blocks`, `value`, `wrapped`, `events`, `pricing`, `statusline`, `doctor`, and `prune`. A definition names the command, its shared option profile (`shared-report-options.ts`), and its examples. The same metadata registers the Commander command, builds the root help examples, and generates the [CLI reference](/llm-usage-metrics/cli-reference/), so option descriptions are written once.
 
 `config` (`init`, `path`, `show`), `schema`, `completion`, `machine` (`add`, `list`, `remove`, `export`), and `sync` are registered directly in `src/cli/create-cli.ts`.
 

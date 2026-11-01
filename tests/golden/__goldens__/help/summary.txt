@@ -1,7 +1,7 @@
 Usage: llm-usage summary [options]
 
 Show cost and tokens for today, the last 7 days, and month to date, plus activity streaks (default
-command)
+outside an interactive terminal)
 
 Options:
   --help-all                     Display help including the per-source path flags
@@ -54,5 +54,5 @@ Per-source path flags (--claude-dir, ...)
 are listed by --help-all.
 
 Examples:
-  $ llm-usage
+  $ llm-usage summary
   $ llm-usage summary --json

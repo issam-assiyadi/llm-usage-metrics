@@ -22,7 +22,7 @@ llm-usage
 
 With Bun, `bunx --bun llm-usage-metrics@latest` runs the CLI on Bun rather than Node. Every feature works on Bun, including the SQLite event store, and repeat runs start faster; CI checks that its reports match Node's.
 
-With no command, `llm-usage` prints cost and tokens for today, the last 7 days, and month to date, plus the source with the highest cost in each period, followed by your streaks and a past-year activity heatmap. Run `llm-usage daily` for one row per day and source.
+With no command in an interactive terminal, `llm-usage` opens the interactive terminal report: the past year's charts, filters, projects and sessions, explored with the keyboard (`?` lists the keys, `q` quits). Piped, in CI, or with `LLM_USAGE_NO_TUI=1` it prints the summary instead. `llm-usage summary` prints cost and tokens for today, the last 7 days, and month to date, plus the source with the highest cost in each period, followed by your streaks and a past-year activity heatmap. Run `llm-usage daily` for one row per day and source.
 
 The first run parses matching session files, stores normalized events in a local SQLite ledger, and loads pricing. Later runs can reuse unchanged files from the ledger.
 

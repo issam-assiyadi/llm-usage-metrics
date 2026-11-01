@@ -17,6 +17,7 @@ import { exitQuietlyOnBrokenPipe } from '../utils/stdout-pipe-errors.js';
 import { createCli } from './create-cli.js';
 import { loadPackageMetadataFromRuntime } from './package-metadata.js';
 import { isParseWorkerRequest, runParseWorker } from './parse-worker-pool.js';
+import { routeBareRunToTui } from './run-tui-command.js';
 
 async function loadConfigForUpdateCheck(): Promise<UserConfig> {
   try {
@@ -47,7 +48,7 @@ async function runCli(): Promise<void> {
   });
 
   try {
-    await cli.parseAsync(process.argv);
+    await cli.parseAsync(routeBareRunToTui(process.argv));
   } finally {
     const updateHint = await waitForUpdateHintBeforeExit(updateHintPromise, updateAbortController);
 

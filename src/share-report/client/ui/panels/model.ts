@@ -141,3 +141,23 @@ export function formatSignedCost(value: number | undefined, incomplete = false):
 export function formatSignedRatio(ratio: number | undefined): string {
   return ratio === undefined ? NO_VALUE : `${signOf(ratio)}${formatPercent(Math.abs(ratio))}`;
 }
+
+export type SharePanelId =
+  'wrapped-recap' | 'summary' | 'trends' | 'compare' | 'efficiency' | 'optimize';
+
+/**
+ * Each lead panel's id, title and the report it embeds, in page order. The page's registry
+ * (`index.ts`) adds the DOM renderer; the terminal report draws the same list.
+ */
+export const SHARE_PANEL_HEADINGS: readonly {
+  id: SharePanelId;
+  title: string;
+  report: ShareEmbeddedEnvelope['report'];
+}[] = [
+  { id: 'wrapped-recap', title: 'Year in review', report: 'wrapped' },
+  { id: 'summary', title: 'This month and the past year', report: 'summary' },
+  { id: 'trends', title: 'The trend', report: 'trends' },
+  { id: 'compare', title: 'Current against baseline', report: 'compare' },
+  { id: 'efficiency', title: 'Cost against commits', report: 'efficiency' },
+  { id: 'optimize', title: 'Candidate models', report: 'optimize' },
+];

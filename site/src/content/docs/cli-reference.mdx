@@ -17,6 +17,7 @@ llm-usage <command> [options]
 Commands:
 
 - `summary`
+- `tui`
 - `hourly`
 - `daily`
 - `weekly`
@@ -54,7 +55,7 @@ Open a command to see its supported flags and defaults. Flags in the option inde
 Usage: llm-usage summary [options]
 
 Show cost and tokens for today, the last 7 days, and month to date, plus
-activity streaks (default command)
+activity streaks (default outside an interactive terminal)
 
 Options:
   --pi-dir <path>                Path to .pi sessions directory (repeatable)
@@ -132,6 +133,97 @@ Options:
                                  models model-N
   --all                          No effect: the summary always covers today, the
                                  last 7 days and month to date
+  --repo <project>               Count only these projects (repeatable or
+                                 comma-separated, so a value cannot contain a
+                                 comma). A path (absolute, or ./, ../, ~/ on
+                                 this machine) matches that project directory
+                                 and the projects under it; a name or path tail
+                                 such as work/api matches the end of a project
+                                 directory, not the projects under it;
+                                 (unattributed) matches usage without a recorded
+                                 directory. Applied after --model picks exact or
+                                 substring matching
+  -h, --help                     display help for command
+```
+
+</details>
+
+<details>
+<summary>llm-usage tui</summary>
+
+```text
+Usage: llm-usage tui [options]
+
+Explore usage in an interactive terminal report: charts, filters, projects and
+sessions (default in an interactive terminal)
+
+Options:
+  --pi-dir <path>                Path to .pi sessions directory (repeatable)
+  --codex-dir <path>             Path to .codex sessions directory (repeatable)
+  --copilot-dir <path>           Path to GitHub Copilot OTEL directory
+                                 (repeatable)
+  --gemini-dir <path>            Path to .gemini directory (repeatable)
+  --droid-dir <path>             Path to Droid sessions directory (repeatable)
+  --claude-dir <path>            Path to Claude projects directory (repeatable)
+  --openclaw-dir <path>          Path to OpenClaw agents directory (repeatable)
+  --opencode-db <path>           Path to OpenCode SQLite DB
+  --goose-db <path>              Path to Goose SQLite DB
+  --amp-dir <path>               Path to Amp threads directory (repeatable)
+  --qwen-dir <path>              Path to Qwen projects directory (repeatable)
+  --kimi-dir <path>              Path to Kimi sessions directory (repeatable)
+  --cline-dir <path>             Path to Cline tasks directory (repeatable)
+  --roocode-dir <path>           Path to RooCode tasks directory (repeatable)
+  --kilocode-dir <path>          Path to KiloCode tasks directory (repeatable)
+  --antigravity-dir <path>       Path to Antigravity conversations directory
+                                 (repeatable)
+  --dsh-dir <path>               Path to DeepSeek Harness sessions directory
+                                 (repeatable)
+  --help-all                     Display help including the per-source path
+                                 flags
+  --source-dir <source-id=path>  Override source directory for directory-backed
+                                 sources (repeatable)
+  --source <name>                Filter by source id (repeatable or
+                                 comma-separated, supported sources (17): pi,
+                                 codex, gemini, droid, opencode, openclaw,
+                                 claude, copilot, goose, amp, qwen, kimi, cline,
+                                 roocode, kilocode, antigravity, dsh)
+  --quiet                        Suppress informational stderr output (warnings
+                                 still print)
+  --verbose                      Print detailed diagnostics on stderr
+                                 (per-source counts, routine skips, config, env)
+  --timezone <iana>              Timezone for bucketing (default: system
+                                 timezone)
+  --provider <name>              Billing-provider filter (normalized to billing
+                                 entity; e.g. openai, anthropic, google,
+                                 moonshot)
+  --model <name>                 Filter by model (repeatable/comma-separated;
+                                 exact when exact match exists after
+                                 source/provider/date filters, otherwise
+                                 substring)
+  --pricing-url <url>            Override LiteLLM pricing source URL
+  --pricing-overrides <path>     Path to a JSON file of per-model pricing
+                                 overrides (takes precedence over LiteLLM)
+  --pricing-offline              Never fetch pricing: use the cached LiteLLM
+                                 pricing, or the bundled snapshot when there is
+                                 no cache
+  --ignore-pricing-failures      Continue without estimated costs when pricing
+                                 cannot be loaded
+  --cost-mode <mode>             Costs to report: explicit (logged by the
+                                 source), estimated (from LiteLLM), or both
+                                 (logged, else estimated; default) (choices:
+                                 "explicit", "estimated", "both")
+  --history                      Include usage from files that no longer exist
+                                 on disk (on by default; when passed, fails if
+                                 the event store is unavailable)
+  --no-history                   Leave out usage from files that no longer exist
+                                 on disk
+  --machine <name>               Count only these machines (repeatable or
+                                 comma-separated; local is this one; default:
+                                 all)
+  --no-sync                      Use other machines' cached usage without
+                                 refreshing it over ssh
+  --all                          No effect: the TUI reads the past year and
+                                 picks its period on screen (press p)
   --repo <project>               Count only these projects (repeatable or
                                  comma-separated, so a value cannot contain a
                                  comma). A path (absolute, or ./, ../, ~/ on
@@ -2298,79 +2390,79 @@ Search across root and command help. See Command help above to check which flags
 
 | Option | Short | Argument | Description |
 | --- | --- | --- | --- |
-| `--all` | - | - | summary: No effect: the summary always covers today, the last 7 days and month to date; hourly: Report every hour instead of today; daily, context: Report every day instead of the last 7 days; weekly: Report every week instead of the last 8 weeks; monthly, projects, efficiency, optimize, session, events: Report the full history \(the default without date flags\); compare: No effect: compare reads its two windows from the date flags; trends: Chart every day since the first usage instead of the last 30 days; tools: Report every tool call on disk instead of the last 7 days; blocks: Report every block instead of the last 7 days; value: Report every month since the first usage \(the default without date flags\); wrapped: No effect: wrapped always recaps one year, chosen with --year |
-| `--amp-dir` | - | `<path>` | Path to Amp threads directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--antigravity-dir` | - | `<path>` | Path to Antigravity conversations directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--all` | - | - | summary: No effect: the summary always covers today, the last 7 days and month to date; tui: No effect: the TUI reads the past year and picks its period on screen \(press p\); hourly: Report every hour instead of today; daily, context: Report every day instead of the last 7 days; weekly: Report every week instead of the last 8 weeks; monthly, projects, efficiency, optimize, session, events: Report the full history \(the default without date flags\); compare: No effect: compare reads its two windows from the date flags; trends: Chart every day since the first usage instead of the last 30 days; tools: Report every tool call on disk instead of the last 7 days; blocks: Report every block instead of the last 7 days; value: Report every month since the first usage \(the default without date flags\); wrapped: No effect: wrapped always recaps one year, chosen with --year |
+| `--amp-dir` | - | `<path>` | Path to Amp threads directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--antigravity-dir` | - | `<path>` | Path to Antigravity conversations directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--apply` | - | - | Delete selected departed files and vacuum the event store \(prune only\) |
 | `--by-machine` | - | - | Split each source row by the machine its usage came from \(usage reports only\) |
 | `--by-repo` | - | - | hourly, daily, weekly, monthly: Split each source row by project \(the directory its session started in\); compare: Also compare each project \(the directory its session started in\); trends: Render one sparkline row per project \(the directory its session started in\); not with --by-source; session: Group usage by project \(the directory its session started in\) instead of by session; tools: Split each tool row by project \(the directory its session started in\) |
 | `--by-session` | - | - | One row per session instead of per model, largest peak prompt first \(context only\) |
 | `--by-source` | - | - | efficiency: Include per-source usage rows under each period; trends: Render one sparkline row per source instead of a single combined chart; tools: Split each tool row by source |
 | `--candidate-model` | - | `<name>` | Candidate model for counterfactual pricing \(repeatable or comma-separated\) \(optimize only\) |
-| `--claude-dir` | - | `<path>` | Path to Claude projects directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--cline-dir` | - | `<path>` | Path to Cline tasks directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--codex-dir` | - | `<path>` | Path to .codex sessions directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--claude-dir` | - | `<path>` | Path to Claude projects directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--cline-dir` | - | `<path>` | Path to Cline tasks directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--codex-dir` | - | `<path>` | Path to .codex sessions directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--command` | - | `<command>` | How llm-usage-metrics is launched there \(default: llm-usage\) \(machine only\) |
 | `--compact` | - | - | hourly, daily, weekly, monthly: Abbreviate token counts and hide the Reasoning and Cache Write columns \(terminal/Markdown\); projects, blocks, value: Abbreviate token counts and leave out minor columns \(terminal/Markdown\) |
-| `--copilot-dir` | - | `<path>` | Path to GitHub Copilot OTEL directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--cost-mode` | - | `<mode>` | Costs to report: explicit \(logged by the source\), estimated \(from LiteLLM\), or both \(logged, else estimated; default\) \(choices: "explicit", "estimated", "both"\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
+| `--copilot-dir` | - | `<path>` | Path to GitHub Copilot OTEL directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--cost-mode` | - | `<mode>` | Costs to report: explicit \(logged by the source\), estimated \(from LiteLLM\), or both \(logged, else estimated; default\) \(choices: "explicit", "estimated", "both"\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
 | `--days` | - | `<n>` | Alias of --last \(trends only\) |
 | `--departed-before` | - | `<YYYY-MM-DD>` | Select departed files whose newest event timestamp is strictly before this UTC date \(prune only\) |
-| `--droid-dir` | - | `<path>` | Path to Droid sessions directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--dsh-dir` | - | `<path>` | Path to DeepSeek Harness sessions directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--droid-dir` | - | `<path>` | Path to Droid sessions directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--dsh-dir` | - | `<path>` | Path to DeepSeek Harness sessions directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--force` | - | - | Overwrite an existing config file \(config only\) |
 | `--format` | - | `<name>` | Export format: jsonl \| csv \| otlp-traces \| otlp-metrics \(default: "jsonl"\) \(events only\) |
 | `--full` | - | - | Fetch every file again instead of only the changed ones \(sync only\) |
-| `--gemini-dir` | - | `<path>` | Path to .gemini directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--goose-db` | - | `<path>` | Path to Goose SQLite DB \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--gemini-dir` | - | `<path>` | Path to .gemini directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--goose-db` | - | `<path>` | Path to Goose SQLite DB \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--granularity` | - | `<period>` | Add rows per period and project \(choices: "daily", "weekly", "monthly"\) \(projects only\) |
-| `--help-all` | - | - | summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune: Display help including the per-source path flags; pricing, config, machine, sync, schema, completion: Display help for command |
-| `--history` | - | - | Include usage from files that no longer exist on disk \(on by default; when passed, fails if the event store is unavailable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline only\) |
+| `--help-all` | - | - | summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune: Display help including the per-source path flags; pricing, config, machine, sync, schema, completion: Display help for command |
+| `--history` | - | - | Include usage from files that no longer exist on disk \(on by default; when passed, fails if the event store is unavailable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline only\) |
 | `--id` | - | `<session-id>` | Show only sessions whose id contains the value \(case-insensitive; repeatable or comma-separated\) \(session only\) |
-| `--ignore-pricing-failures` | - | - | Continue without estimated costs when pricing cannot be loaded \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
+| `--ignore-pricing-failures` | - | - | Continue without estimated costs when pricing cannot be loaded \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
 | `--include-merge-commits` | - | - | Include merge commits in Git outcome metrics \(efficiency only\) |
 | `--json` | - | - | Render output as JSON \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, pricing, doctor, prune, config only\) |
-| `--kilocode-dir` | - | `<path>` | Path to KiloCode tasks directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--kimi-dir` | - | `<path>` | Path to Kimi sessions directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--kilocode-dir` | - | `<path>` | Path to KiloCode tasks directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--kimi-dir` | - | `<path>` | Path to Kimi sessions directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--known` | - | `<path>` | Leave out files already held at the same revision, as listed in this JSON file \(- for stdin\) \(machine only\) |
 | `--last` | - | `<n>` | hourly: Report the last N days hour by hour \(1-31\), counting today; daily, session, context: Report the last N days, counting today; weekly: Report the last N weeks, counting the current week; monthly, projects, value: Report the last N months, counting the current month; efficiency, optimize: Report the last N periods of &lt;granularity&gt; \(days, weeks or months\), counting the current one; trends: Chart the last N local calendar days, counting today; defaults to 30 when no date flags are provided; tools, blocks: Report the last N days, counting today \(default 7\); events: Export the last N days, counting today |
 | `--list` | - | - | List available schema names \(the default without a name\) \(schema only\) |
-| `--machine` | - | `<name>` | Count only these machines \(repeatable or comma-separated; local is this one; default: all\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline only\) |
+| `--machine` | - | `<name>` | Count only these machines \(repeatable or comma-separated; local is this one; default: all\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline only\) |
 | `--markdown` | - | - | Render output as Markdown table \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, pricing only\) |
 | `--metric` | - | `<name>` | Trend metric: cost \| tokens \| active-hours \(default: "cost"\) \(trends only\) |
-| `--model` | - | `<name>` | Filter by model \(repeatable/comma-separated; exact when exact match exists after source/provider/date filters, otherwise substring\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
+| `--model` | - | `<name>` | Filter by model \(repeatable/comma-separated; exact when exact match exists after source/provider/date filters, otherwise substring\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
 | `--no-cost` | - | - | hourly, projects, blocks, value: Leave cost out of the table, e.g. for screenshots; daily, weekly, monthly: Leave cost out of the table and share report, e.g. for screenshots |
-| `--no-history` | - | - | Leave out usage from files that no longer exist on disk \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline only\) |
+| `--no-history` | - | - | Leave out usage from files that no longer exist on disk \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline only\) |
 | `--no-open` | - | - | With --share, write the report without opening it \(summary, daily, weekly, monthly, compare, efficiency, optimize, trends, wrapped only\) |
-| `--no-sync` | - | - | Use other machines' cached usage without refreshing it over ssh \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events only\) |
-| `--openclaw-dir` | - | `<path>` | Path to OpenClaw agents directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--opencode-db` | - | `<path>` | Path to OpenCode SQLite DB \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--no-sync` | - | - | Use other machines' cached usage without refreshing it over ssh \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events only\) |
+| `--openclaw-dir` | - | `<path>` | Path to OpenClaw agents directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--opencode-db` | - | `<path>` | Path to OpenCode SQLite DB \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--otel-include-paths` | - | - | With otlp-traces: add repository paths and path-shaped session ids to spans \(left out or hashed by default\) \(events only\) |
 | `--otlp-endpoint` | - | `<url>` | With an OTLP format: POST to &lt;url&gt;/v1/traces or /v1/metrics \(unless &lt;url&gt; already ends with it\) instead of printing; headers from OTEL\_EXPORTER\_OTLP\_HEADERS \(events only\) |
 | `--per-model-columns` | - | - | Render per-model metrics as multiline aligned table columns \(terminal/Markdown\) \(usage reports only\) |
-| `--pi-dir` | - | `<path>` | Path to .pi sessions directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--pi-dir` | - | `<path>` | Path to .pi sessions directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--plan` | - | `<id>` | Plan to compare with, over the sources it covers \(repeatable; default claude-max-20x, or chatgpt-pro-200 when the source filter leaves out claude\). Two plans that cover the same source each count its full cost \(choices: "claude-pro", "claude-max-5x", "claude-max-20x", "chatgpt-go", "chatgpt-plus", "chatgpt-pro-100", "chatgpt-pro-200", "chatgpt-pro-500"\) \(value only\) |
 | `--plan-price` | - | `<usd>` | Monthly plan price in USD to use instead of the plan's list price \(one plan only\) \(value only\) |
-| `--pricing-offline` | - | - | Never fetch pricing: use the cached LiteLLM pricing, or the bundled snapshot when there is no cache \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, pricing, config only\) |
-| `--pricing-overrides` | - | `<path>` | Path to a JSON file of per-model pricing overrides \(takes precedence over LiteLLM\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, pricing, statusline, config only\) |
-| `--pricing-url` | - | `<url>` | Override LiteLLM pricing source URL \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, pricing, config only\) |
-| `--provider` | - | `<name>` | Billing-provider filter \(normalized to billing entity; e.g. openai, anthropic, google, moonshot\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
-| `--quiet` | - | - | Suppress informational stderr output \(warnings still print\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, pricing, doctor, prune, machine only\) |
-| `--qwen-dir` | - | `<path>` | Path to Qwen projects directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--pricing-offline` | - | - | Never fetch pricing: use the cached LiteLLM pricing, or the bundled snapshot when there is no cache \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, pricing, config only\) |
+| `--pricing-overrides` | - | `<path>` | Path to a JSON file of per-model pricing overrides \(takes precedence over LiteLLM\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, pricing, statusline, config only\) |
+| `--pricing-url` | - | `<url>` | Override LiteLLM pricing source URL \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, pricing, config only\) |
+| `--provider` | - | `<name>` | Billing-provider filter \(normalized to billing entity; e.g. openai, anthropic, google, moonshot\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, context, blocks, value, wrapped, events, statusline only\) |
+| `--quiet` | - | - | Suppress informational stderr output \(warnings still print\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, pricing, doctor, prune, machine only\) |
+| `--qwen-dir` | - | `<path>` | Path to Qwen projects directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--redact` | - | - | With --share, label projects project-N, machines machine-N and local or path-shaped models model-N \(summary, daily, weekly, monthly, compare, efficiency, optimize, trends, wrapped only\) |
-| `--repo` | - | `<project>` | summary, hourly, daily, weekly, monthly, projects, compare, optimize, trends, session, context, blocks, value: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Applied after --model picks exact or substring matching; efficiency: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Applied after --model picks exact or substring matching. It filters usage events; --repo-dir picks the Git repository for outcomes; tools: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Keeps the tool calls of sessions whose usage is in these projects; events: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Applied after --model picks exact or substring matching. Here a project is the directory each event recorded, which events exports as repoRoot |
+| `--repo` | - | `<project>` | summary, tui, hourly, daily, weekly, monthly, projects, compare, optimize, trends, session, context, blocks, value: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Applied after --model picks exact or substring matching; efficiency: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Applied after --model picks exact or substring matching. It filters usage events; --repo-dir picks the Git repository for outcomes; tools: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Keeps the tool calls of sessions whose usage is in these projects; events: Count only these projects \(repeatable or comma-separated, so a value cannot contain a comma\). A path \(absolute, or ./, ../, \~/ on this machine\) matches that project directory and the projects under it; a name or path tail such as work/api matches the end of a project directory, not the projects under it; \(unattributed\) matches usage without a recorded directory. Applied after --model picks exact or substring matching. Here a project is the directory each event recorded, which events exports as repoRoot |
 | `--repo-dir` | - | `<path>` | Path to repository for Git outcome metrics \(efficiency only\) |
-| `--roocode-dir` | - | `<path>` | Path to RooCode tasks directory \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--roocode-dir` | - | `<path>` | Path to RooCode tasks directory \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--share` | - | - | Write an interactive HTML report to the current directory \(summary, daily, weekly, monthly, compare, efficiency, optimize, trends, wrapped only\) |
 | `--since` | - | `<YYYY-MM-DD>` | Inclusive start date filter \(hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, events only\) |
-| `--source` | - | `<name>` | Filter by source id \(repeatable or comma-separated, supported sources \(17\): pi, codex, gemini, droid, opencode, openclaw, claude, copilot, goose, amp, qwen, kimi, cline, roocode, kilocode, antigravity, dsh\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
-| `--source-dir` | - | `<source-id=path>` | Override source directory for directory-backed sources \(repeatable\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--source` | - | `<name>` | Filter by source id \(repeatable or comma-separated, supported sources \(17\): pi, codex, gemini, droid, opencode, openclaw, claude, copilot, goose, amp, qwen, kimi, cline, roocode, kilocode, antigravity, dsh\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
+| `--source-dir` | - | `<source-id=path>` | Override source directory for directory-backed sources \(repeatable\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, config only\) |
 | `--suppressed` | - | - | Select departed files that --history already suppresses \(prune only\) |
 | `--timeline` | - | - | With --id naming one session: list its requests in time order with a running cost, between its tool calls and turns \(session only\) |
-| `--timezone` | - | `<iana>` | Timezone for bucketing \(default: system timezone\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, config only\) |
+| `--timezone` | - | `<iana>` | Timezone for bucketing \(default: system timezone\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, config only\) |
 | `--top` | - | `<n>` | hourly: With --by-repo, show the top N projects of each hour by cost \(by tokens when a cost is incomplete or with --no-cost\) and fold the rest into one "other projects" row per source \(default 20; 0 shows all\); daily: With --by-repo, show the top N projects of each day by cost \(by tokens when a cost is incomplete or with --no-cost\) and fold the rest into one "other projects" row per source \(default 20; 0 shows all\); weekly: With --by-repo, show the top N projects of each week by cost \(by tokens when a cost is incomplete or with --no-cost\) and fold the rest into one "other projects" row per source \(default 20; 0 shows all\); monthly: With --by-repo, show the top N projects of each month by cost \(by tokens when a cost is incomplete or with --no-cost\) and fold the rest into one "other projects" row per source \(default 20; 0 shows all\); projects: Show only the top N projects by cost \(default 10; 0 shows all\); compare: With --by-repo, show the top N projects by cost change and fold the rest into one "other projects" row \(default 20; 0 shows all\); optimize: Show only the top N cheapest candidates \(default: all; 0 shows all\); session: Show only the top N rows by cost \(default 20; 0 shows all\); tools: Show only the top N tools by calls \(default 20; 0 shows all\); context: With --by-session, show only the top N sessions \(default 20; 0 shows all\); blocks: Show the top N blocks across sources by cost, or by tokens when a cost is incomplete or with --no-cost \(default: the 20 most recent; 0 shows all\); value: List only the top N projects of each month by cost \(default 10; 0 lists all\) |
 | `--until` | - | `<YYYY-MM-DD>` | Inclusive end date filter \(hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, events only\) |
-| `--verbose` | - | - | Print detailed diagnostics on stderr \(per-source counts, routine skips, config, env\) \(summary, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, machine only\) |
+| `--verbose` | - | - | Print detailed diagnostics on stderr \(per-source counts, routine skips, config, env\) \(summary, tui, hourly, daily, weekly, monthly, projects, compare, efficiency, optimize, trends, session, tools, context, blocks, value, wrapped, events, statusline, doctor, prune, machine only\) |
 | `--vs-since` | - | `<date>` | Inclusive start date for the baseline comparison window \(compare only\) |
 | `--vs-until` | - | `<date>` | Inclusive end date for the baseline comparison window \(compare only\) |
 | `--year` | - | `<YYYY>` | Year to recap \(2020-2100; defaults to current local year\) \(wrapped only\) |
@@ -2380,8 +2472,10 @@ Search across root and command help. See Command help above to check which flags
 ## Examples
 
 ```bash
-llm-usage
+llm-usage summary
 llm-usage summary --json
+llm-usage
+llm-usage tui --source codex,claude
 llm-usage hourly
 llm-usage hourly --last 3 --json
 llm-usage hourly --since 2026-06-15 --until 2026-06-15 --by-repo

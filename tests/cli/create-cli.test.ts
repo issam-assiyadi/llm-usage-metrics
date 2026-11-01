@@ -73,6 +73,7 @@ describe('createCli', () => {
     expect(cli.name()).toBe('llm-usage');
     expect(cli.commands.map((command) => command.name())).toEqual([
       'summary',
+      'tui',
       'hourly',
       'daily',
       'weekly',
@@ -539,7 +540,7 @@ describe('createCli', () => {
       exitCode: 0,
     });
     expect(output.text()).toMatch(/^Usage: llm-usage \[options\] \[command\]\n/u);
-    expect(output.text()).toContain('Examples:\n  $ llm-usage\n');
+    expect(output.text()).toContain('Examples:\n  $ llm-usage summary\n  $ llm-usage\n');
   });
 
   it('rejects --all with date flags on a report whose default is the full history', async () => {
@@ -600,6 +601,7 @@ describe('createCli', () => {
   it('exports shared report metadata and CLI reference examples', () => {
     expect(getReportDefinitionMetas().map((meta) => meta.commandName)).toEqual([
       'summary',
+      'tui',
       'hourly',
       'daily',
       'weekly',

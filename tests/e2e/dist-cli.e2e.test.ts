@@ -60,7 +60,10 @@ describe.skipIf(!existsSync(distCliPath))('dist CLI e2e', () => {
       files: string[];
     };
     expect(Object.values(packageJson.bin)).toEqual(['dist/bin.js', 'dist/bin.js']);
-    expect(packageJson.files).toEqual(expect.arrayContaining(['dist/bin.js', 'dist/index.js']));
+    // The TUI is its own bundle, loaded next to index.js only by `llm-usage tui`.
+    expect(packageJson.files).toEqual(
+      expect.arrayContaining(['dist/bin.js', 'dist/index.js', 'dist/tui.js']),
+    );
 
     const args = [
       'monthly',
